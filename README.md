@@ -4,6 +4,7 @@ The second-order Aw-Rascle-Zhang (ARZ) Traffic Model Implementation.
 
 ## Requirement
 Python 3
+
 OpenAI [Gym](https://github.com/openai/gym)
 
 ## How to install this gym environment
@@ -19,5 +20,6 @@ OpenAI [Gym](https://github.com/openai/gym)
 ## Contacts
 
 Saehong Park: sspark@berkeley.edu
+
 Huan Yu: huy015@ucsd.edu
 
