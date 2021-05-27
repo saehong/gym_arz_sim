@@ -37,7 +37,7 @@ class ARZ(gym.Env):
 		##########################
 		# DETMINISTIC ENV.
 		##########################
-		print('Determinstic')
+		print('Determinstic Env.')
 		self.vs = sett['vs']
 		self.vs_desired = sett['vs_desired']
 		self.rs = sett['rs']
@@ -149,7 +149,7 @@ class ARZ(gym.Env):
 		lambda_2 = self.vs - self.rs * self.vm/self.rm
 
 		# Initial condition
-		print('check this rs: {}'.format(self.rs))
+		print('Initial condition of rs: {}'.format(self.rs))
 
 		self.r = self.rs * np.transpose(np.sin(3 * x / self.L * np.pi ) * 0.1 + np.ones([1,self.M]))
 		self.y = self.qs * np.ones([self.M,1]) - self.vm * self.r + self.vm / self.rm * (self.r)**(2)
@@ -298,9 +298,6 @@ class ARZ(gym.Env):
 	def render(self):
 		pass
 
-    # def seed(self, seed=None):
-    #     self.np_random, seed = seeding.np_random(seed)
-    #     return [seed]
 
 	def reset(self):
 		self.__init__(self.sett, self.cont_sett)
