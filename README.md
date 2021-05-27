@@ -19,5 +19,6 @@ OpenAI [Gym](https://github.com/openai/gym)
 ## Contacts
 
 Saehong Park: sspark@berkeley.edu
+
 Huan Yu: huy015@ucsd.edu
 
