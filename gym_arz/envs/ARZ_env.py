@@ -33,6 +33,16 @@ class ARZ(gym.Env):
 		self.tau = sett['tau']
 
 
+		self.cont_scenario = cont_sett['Scenario']
+
+		if self.cont_scenario == 1:
+			print('Case 1: Outlet Boundary Control')
+		elif self.cont_scenario == 2:
+			print('Case 2: Inlet Boundary Control')
+		elif self.cont_scenario == 3:
+			print('Case 3: Outlet & Inlet Boundary Control')
+		else:
+			raise ValueError('Case is not chosen. Please check the settings_file.py')
 
 		##########################
 		# DETMINISTIC ENV.
@@ -154,14 +164,6 @@ class ARZ(gym.Env):
 		self.r = self.rs * np.transpose(np.sin(3 * x / self.L * np.pi ) * 0.1 + np.ones([1,self.M]))
 		self.y = self.qs * np.ones([self.M,1]) - self.vm * self.r + self.vm / self.rm * (self.r)**(2)
 
-		# ipdb.set_trace()
-		# Boundary condition // Not used in the __init__
-		# self.r[0] = self.r[1]
-		# self.y[0] = self.qs - self.r[0]*Veq(self.vm, self.rm, self.r[0])
-
-		# Ghost condition
-		# self.r[-1] = self.r[-2] # commented out, 2020.04.23
-		# self.y[-1] = self.y[-2] # commented out, 2020.04.23
 
 
 		self.v = self.y/self.r + Veq(self.vm, self.rm, self.r)
@@ -202,32 +204,35 @@ class ARZ(gym.Env):
 		else:
 			qs_input = action
 			
+			if self.cont_scenario == 1 or 2:
+				# Single Input ------------------------------------------------------------------
+				qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)[0]	
+				# ------------------------------------------------------------------
+			elif self.cont_scenario == 3:
+				# Multiple Input ------------------------------------------------------------------
+				qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)
+				q_inlet_input = qs_input[0]
+				q_outlet_input = qs_input[1]
+				# ------------------------------------------------------------------
 
-			# Single Input ------------------------------------------------------------------
-			qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)[0]	
-			# ------------------------------------------------------------------
 
-			# Multiple Input ------------------------------------------------------------------
-			# qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)
-			# q_inlet_input = qs_input[0]
-			# q_outlet_input = qs_input[1]
-			# ------------------------------------------------------------------
+		# PDE control part.------------------------------------------------------------------
+		# Inlet
 
-		# Control inlet boundary input (single-input)
-		# self.q_inlet = qs_input
+		if self.cont_scenario == 1:
+			# Fixed inlet boundary input
+			self.q_inlet = self.qs
 
-		# Control inlet boundary input (Multi-input)
-		# self.q_inlet = q_inlet_input
+		elif self.cont_scenario == 2:
+			# Control inlet boundary input (single-input)
+			self.q_inlet = qs_input
 
-		# Fixed inlet boundary input
-		self.q_inlet = self.qs
+		elif self.cont_scenario == 3:
+			# Control inlet boundary input (Multi-input)
+			self.q_inlet = q_inlet_input
 
-		# time-varying inlet boundary input
-		#self.q_inlet = self.qs * np.transpose(np.sin(4 * self.t / self.T * np.pi) * 0.1 + 1)
+		# ------------------------------------------------------------------
 
-		# Random inlet boundary input
-		# self.q_inlet = self.qs * (0.1 * np.random.randn() + 1) ## Gaussian dist.
-		# self.q_inlet = self.qs * (2 * np.random.uniform(-0.1,0.1) + 1) ## Uniform dist.
 
 		# Boundary conditions
 		self.r[0] = self.r[1]
@@ -240,16 +245,20 @@ class ARZ(gym.Env):
 		# self.y[self.M-1] = self.y[self.M-2] # commented out, 2020.04.23
 
 		# PDE control part.------------------------------------------------------------------
-		#print(action)
+		# Outlet
 
-		# Control outlet boundary input (Multi-input)
-		# self.y[self.M-1] = q_outlet_input - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
+		if self.cont_scenario == 1:
+			# Control outlet boundary input
+			self.y[self.M-1] = qs_input - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
 		
-		# Control outlet boundary input
-		self.y[self.M-1] = qs_input - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
+		elif self.cont_scenario == 2:
+			# Fixed outlet boundary input
+			self.y[self.M-1] = self.qs - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
 		
-		# Fixed outlet boundary input
-		# self.y[self.M-1] = self.qs - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
+		elif self.cont_scenario == 3:
+			# Control outlet boundary input (Multi-input)
+			self.y[self.M-1] = q_outlet_input - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
+		
 		
 		# ------------------------------------------------------------------
 
@@ -270,12 +279,9 @@ class ARZ(gym.Env):
 		self.v = self.y/self.r + Veq(self.vm, self.rm, self.r)
 
 
-		#print(self.r)
-
 		# Reward
 		v_desired = self.vs_desired #vs
 		r_desired = self.rs_desired #rs
-		# reward = -(np.linalg.norm(self.v-v_desired, ord=2)/(v_desired) + np.linalg.norm(self.r-r_desired, ord=2)/(r_desired))
 		reward = -(np.linalg.norm(self.v-v_desired, ord=None)/(v_desired) + np.linalg.norm(self.r-r_desired, ord=None)/(r_desired))
 
 		#print(reward)
