@@ -183,7 +183,13 @@ class ARZ(gym.Env):
 			return spaces.Discrete(20)
 		else:
 			# Specify the input shape.
-			return spaces.Box(dtype=np.float32, low = self.qs * 0.8, high = 1.2 * self.qs, shape=(2,))
+			if self.cont_scenario == 1 or self.cont_scenario == 2:
+				return_box=spaces.Box(dtype=np.float32, low = self.qs * 0.8, high = 1.2 * self.qs, shape=(1,))
+			elif self.cont_scenario == 3:
+				return_box=spaces.Box(dtype=np.float32, low = self.qs * 0.8, high = 1.2 * self.qs, shape=(2,))
+			
+			
+		return return_box
 
 	def seed(self, seed=None):
 		self.np_random, seed = seeding.np_random(seed)
@@ -203,12 +209,12 @@ class ARZ(gym.Env):
 			qs_input = self.qs_input[action]
 		else:
 			qs_input = action
-			
-			if self.cont_scenario == 1 or 2:
+			if self.cont_scenario == 1 or self.cont_scenario == 2:
 				# Single Input ------------------------------------------------------------------
 				qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)[0]	
 				# ------------------------------------------------------------------
 			elif self.cont_scenario == 3:
+
 				# Multiple Input ------------------------------------------------------------------
 				qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)
 				q_inlet_input = qs_input[0]
@@ -236,13 +242,11 @@ class ARZ(gym.Env):
 
 		# Boundary conditions
 		self.r[0] = self.r[1]
-		# self.y[0] = self.qs - self.r[0] * Veq(self.vm, self.rm, self.r[0])
-		self.y[0] = self.q_inlet - self.r[0] * Veq(self.vm, self.rm, self.r[0]) # <-- inlet boundary
+		self.y[0] = self.q_inlet - self.r[0] * Veq(self.vm, self.rm, self.r[0])
 
 		# Ghost condition
 		# M-1 means boundary
 		self.r[self.M-1] = self.r[self.M-2]
-		# self.y[self.M-1] = self.y[self.M-2] # commented out, 2020.04.23
 
 		# PDE control part.------------------------------------------------------------------
 		# Outlet
