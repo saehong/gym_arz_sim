@@ -41,96 +41,101 @@ class ARZ(gym.Env):
 			print('Case 2: Inlet Boundary Control')
 		elif self.cont_scenario == 3:
 			print('Case 3: Outlet & Inlet Boundary Control')
+		elif self.cont_scenario == 4:
+			print('Case 4: Stochastic Outlet Boundary Control for Training')
+		elif self.cont_scenario == 5:
+			print('Case 5: Stochastic Inlet Boundary Control for Training')
+		elif self.cont_scenario == 6:
+			print('Case 6: Stochastic Outlet Boundary Control for Validation // Lighter Traffic')
+		elif self.cont_scenario == 7:
+			print('Case 7: Stochastic Inlet Boundary Control for Validation // Denser Traffic')
 		else:
 			raise ValueError('Case is not chosen. Please check the settings_file.py')
 
 		##########################
 		# DETMINISTIC ENV.
 		##########################
-		print('Determinstic Env.')
-		self.vs = sett['vs']
-		self.vs_desired = sett['vs_desired']
-		self.rs = sett['rs']
-		self.rs_desired = sett['rs_desired']
-		self.qs = sett['qs']
-		self.qs_desired = sett['qs_desired']
-		self.ps = sett['ps']
+		if self.cont_scenario == 1 or self.cont_scenario == 2 or self.cont_scenario == 3:  
+			print('Determinstic Env.')
+			self.vs = sett['vs']
+			self.vs_desired = sett['vs_desired']
+			self.rs = sett['rs']
+			self.rs_desired = sett['rs_desired']
+			self.qs = sett['qs']
+			self.qs_desired = sett['qs_desired']
+			self.ps = sett['ps']
 
 
 
 		##########################
 		# STOCHASTIC ENV.
 		##########################
-		# r1 = random.randint(0, 2)
-		# #ipdb.set_trace()
-		# if r1 == 0:
-		# 	print('rs=0.115 case')
-		# 	self.rs = 0.115
-		# 	self.vs = Veq(self.vm, self.rm, self.rs)
-		# 	self.qs = self.rs * self.vs
+		if self.cont_scenario == 4 or self.cont_scenario == 5:
+			print('Stochastic Env.')
+			r1 = random.randint(0, 2)
+			#ipdb.set_trace()
+			if r1 == 0:
+				print('Init: rs=0.115')
+				self.rs = 0.115
+				self.vs = Veq(self.vm, self.rm, self.rs)
+				self.qs = self.rs * self.vs
 
-		# 	self.vs_desired = self.vs
-		# 	self.rs_desired = self.rs
-		# 	self.qs_desired = self.qs
-		# 	# ipdb.set_trace()
+				self.vs_desired = self.vs
+				self.rs_desired = self.rs
+				self.qs_desired = self.qs
+				
 
-		# elif r1 == 1:
-		# 	print('rs=0.12 case')
-		# 	self.rs = 0.12
-		# 	self.vs = Veq(self.vm, self.rm, self.rs)#10
-		# 	self.qs = self.rs * self.vs
+			elif r1 == 1:
+				print('Init: rs=0.12')
+				self.rs = 0.12
+				self.vs = Veq(self.vm, self.rm, self.rs)#10
+				self.qs = self.rs * self.vs
 
-		# 	self.vs_desired = self.vs
-		# 	self.rs_desired = self.rs
-		# 	self.qs_desired = self.qs
+				self.vs_desired = self.vs
+				self.rs_desired = self.rs
+				self.qs_desired = self.qs
 
-		# 	# ipdb.set_trace()
-		# else:
-		# 	print('rs=0.125 case')
-		# 	self.rs = 0.125
-		# 	self.vs = Veq(self.vm, self.rm, self.rs)
-		# 	self.qs = self.rs * self.vs
+				
+			else:
+				print('Init: rs=0.125')
+				self.rs = 0.125
+				self.vs = Veq(self.vm, self.rm, self.rs)
+				self.qs = self.rs * self.vs
 
-		# 	self.vs_desired = self.vs
-		# 	self.rs_desired = self.rs
-		# 	self.qs_desired = self.qs
+				self.vs_desired = self.vs
+				self.rs_desired = self.rs
+				self.qs_desired = self.qs
 
 
 		##########################
 		# STOCHASTIC Validation.
 		##########################
-		# r1 = random.randint(0, 2)
-		
-		# rs = 0.115
-		# print('rs=0.115 case')
-		# self.rs = 0.115
-		# self.vs = Veq(self.vm, self.rm, self.rs)
-		# self.qs = self.rs * self.vs
+		if self.cont_scenario == 6:
+			
+			print('Stochastic Training Validation')
+			print('Requires Stochastic Training Results (case4)')
+			print('rs=0.115 case')
+			rs = 0.115
+			self.rs = 0.115
+			self.vs = Veq(self.vm, self.rm, self.rs)
+			self.qs = self.rs * self.vs
 
-		# self.vs_desired = self.vs
-		# self.rs_desired = self.rs
-		# self.qs_desired = self.qs
+			self.vs_desired = self.vs
+			self.rs_desired = self.rs
+			self.qs_desired = self.qs
 
-		# rs = 0.12
-		# print('rs=0.12 case')
-		# self.rs = 0.12
-		# self.vs = Veq(self.vm, self.rm, self.rs)#10
-		# self.qs = self.rs * self.vs
+		if self.cont_scenario == 7:
+			print('Stochastic Training Validation')
+			print('Requires Stochastic Training Results (case5)')
+			print('rs=0.125 case')
+			rs = 0.125
+			self.rs = 0.125
+			self.vs = Veq(self.vm, self.rm, self.rs)
+			self.qs = self.rs * self.vs
 
-		# self.vs_desired = self.vs
-		# self.rs_desired = self.rs
-		# self.qs_desired = self.qs
-
-
-		# rs = 0.125
-		# print('rs=0.125 case')
-		# self.rs = 0.125
-		# self.vs = Veq(self.vm, self.rm, self.rs)
-		# self.qs = self.rs * self.vs
-
-		# self.vs_desired = self.vs
-		# self.rs_desired = self.rs
-		# self.qs_desired = self.qs
+			self.vs_desired = self.vs
+			self.rs_desired = self.rs
+			self.qs_desired = self.qs
 
 
 		##########################
@@ -183,7 +188,7 @@ class ARZ(gym.Env):
 			return spaces.Discrete(20)
 		else:
 			# Specify the input shape.
-			if self.cont_scenario == 1 or self.cont_scenario == 2:
+			if self.cont_scenario == 1 or self.cont_scenario == 2 or self.cont_scenario == 4 or self.cont_scenario == 5 or self.cont_scenario == 6 or self.cont_scenario == 7:
 				return_box=spaces.Box(dtype=np.float32, low = self.qs * 0.8, high = 1.2 * self.qs, shape=(1,))
 			elif self.cont_scenario == 3:
 				return_box=spaces.Box(dtype=np.float32, low = self.qs * 0.8, high = 1.2 * self.qs, shape=(2,))
@@ -209,7 +214,7 @@ class ARZ(gym.Env):
 			qs_input = self.qs_input[action]
 		else:
 			qs_input = action
-			if self.cont_scenario == 1 or self.cont_scenario == 2:
+			if self.cont_scenario == 1 or self.cont_scenario == 2 or self.cont_scenario == 4 or self.cont_scenario == 5 or self.cont_scenario == 6 or self.cont_scenario == 7:
 				# Single Input ------------------------------------------------------------------
 				qs_input = np.clip(qs_input, a_min=self.action_space.low, a_max=self.action_space.high)[0]	
 				# ------------------------------------------------------------------
@@ -225,11 +230,11 @@ class ARZ(gym.Env):
 		# PDE control part.------------------------------------------------------------------
 		# Inlet
 
-		if self.cont_scenario == 1:
+		if self.cont_scenario == 1 or self.cont_scenario == 4 or self.cont_scenario == 6:
 			# Fixed inlet boundary input
 			self.q_inlet = self.qs
 
-		elif self.cont_scenario == 2:
+		elif self.cont_scenario == 2 or self.cont_scenario == 5 or self.cont_scenario == 7:
 			# Control inlet boundary input (single-input)
 			self.q_inlet = qs_input
 
@@ -251,11 +256,11 @@ class ARZ(gym.Env):
 		# PDE control part.------------------------------------------------------------------
 		# Outlet
 
-		if self.cont_scenario == 1:
+		if self.cont_scenario == 1 or self.cont_scenario == 4 or self.cont_scenario == 6:
 			# Control outlet boundary input
 			self.y[self.M-1] = qs_input - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
 		
-		elif self.cont_scenario == 2:
+		elif self.cont_scenario == 2  or self.cont_scenario == 5 or self.cont_scenario == 7:
 			# Fixed outlet boundary input
 			self.y[self.M-1] = self.qs - self.r[self.M-1]* Veq(self.vm, self.rm, self.r[self.M-1])
 		
